@@ -155,6 +155,16 @@ export default function CustomerForm({ token }: { token: string }) {
             Vi har modtaget jeres information og vender tilbage hurtigst muligt. Har I spørgsmål undervejs,
             er I altid velkomne til at skrive til os.
           </p>
+          <button
+            className="btn btn-secondary"
+            style={{ marginTop: 28 }}
+            onClick={() => {
+              setCur(0)
+              setPhase('app')
+            }}
+          >
+            Mangler I noget? Gå tilbage og rediger
+          </button>
         </div>
       </div>
     )

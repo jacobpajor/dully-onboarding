@@ -13,7 +13,6 @@ import {
 import type {
   Sections,
   PayrollAnswers,
-  EmployeesData,
   BudgetData,
   InventoryData,
   IntegrationsData,
@@ -347,6 +346,24 @@ function DeleteRow({ id, onDeleted }: { id: string; onDeleted: () => void }) {
   )
 }
 
+const SUBM_SECTIONS: { key: string; title: string }[] = [
+  { key: 'employees', title: 'Medarbejdere' },
+  { key: 'payroll', title: 'Løn & Regler' },
+  { key: 'budget', title: 'Budget' },
+  { key: 'inventory', title: 'Inventory' },
+  { key: 'integrations', title: 'Integrationer & POS' },
+]
+
+function FileChip({ f }: { f: AdminFile }) {
+  return f.url ? (
+    <a className="file-dl" href={f.url} target="_blank" rel="noreferrer">
+      ↓ {f.fileName}
+    </a>
+  ) : (
+    <span className="file-dl">{f.fileName}</span>
+  )
+}
+
 function Submission({ ob }: { ob: OnboardingData }) {
   const [files, setFiles] = useState<AdminFile[]>([])
   useEffect(() => {
@@ -355,47 +372,51 @@ function Submission({ ob }: { ob: OnboardingData }) {
       .catch(() => {})
   }, [ob.id])
 
-  const s = ob.sections || {}
-  const groups = buildGroups(s)
-  const hasAny = groups.some((g) => g.rows.length > 0) || files.length > 0
+  const rowsBySection = buildGroups(ob.sections || {})
+  const filesFor = (key: string) => files.filter((f) => f.section === key)
+  const known = new Set(SUBM_SECTIONS.map((s) => s.key))
+  const otherFiles = files.filter((f) => !known.has(f.section))
+
+  const hasAny =
+    SUBM_SECTIONS.some((s) => (rowsBySection[s.key]?.length ?? 0) > 0 || filesFor(s.key).length > 0) ||
+    otherFiles.length > 0
 
   return (
     <div className="subm">
-      <div className="subm-group-title" style={{ marginBottom: 14 }}>
-        Indsendt indhold
-      </div>
+      <div className="subm-heading">Indsendt indhold</div>
       {!hasAny && <div className="subm-empty">Kunden har ikke udfyldt noget endnu.</div>}
 
-      {groups.map(
-        (g) =>
-          g.rows.length > 0 && (
-            <div className="subm-group" key={g.title}>
-              <div className="subm-group-title">{g.title}</div>
-              {g.rows.map((r, i) => (
-                <div className="subm-row" key={i}>
-                  <div className="subm-key">{r.key}</div>
-                  <div className="subm-val">{r.val}</div>
-                </div>
-              ))}
-            </div>
-          ),
-      )}
-
-      {files.length > 0 && (
-        <div className="subm-group">
-          <div className="subm-group-title">Filer</div>
-          <div>
-            {files.map((f) =>
-              f.url ? (
-                <a className="file-dl" key={f.id} href={f.url} target="_blank" rel="noreferrer">
-                  ↓ {f.fileName}
-                </a>
-              ) : (
-                <span className="file-dl" key={f.id}>
-                  {f.fileName}
-                </span>
-              ),
+      {SUBM_SECTIONS.map((sec) => {
+        const rows = rowsBySection[sec.key] ?? []
+        const secFiles = filesFor(sec.key)
+        if (!rows.length && !secFiles.length) return null
+        return (
+          <div className="subm-group" key={sec.key}>
+            <div className="subm-group-title">{sec.title}</div>
+            {rows.map((r, i) => (
+              <div className="subm-row" key={i}>
+                <div className="subm-key">{r.key}</div>
+                <div className="subm-val">{r.val}</div>
+              </div>
+            ))}
+            {secFiles.length > 0 && (
+              <div className="subm-files">
+                {secFiles.map((f) => (
+                  <FileChip key={f.id} f={f} />
+                ))}
+              </div>
             )}
+          </div>
+        )
+      })}
+
+      {otherFiles.length > 0 && (
+        <div className="subm-group">
+          <div className="subm-group-title">Øvrige filer</div>
+          <div className="subm-files">
+            {otherFiles.map((f) => (
+              <FileChip key={f.id} f={f} />
+            ))}
           </div>
         </div>
       )}
@@ -403,79 +424,68 @@ function Submission({ ob }: { ob: OnboardingData }) {
   )
 }
 
-type Group = { title: string; rows: { key: string; val: string }[] }
+type Row = { key: string; val: string }
 
-function buildGroups(s: Sections): Group[] {
-  const groups: Group[] = []
+function buildGroups(s: Sections): Record<string, Row[]> {
+  const out: Record<string, Row[]> = {}
 
-  const emp = s.employees as EmployeesData | undefined
-  if (emp) {
-    const rows: Group['rows'] = []
-    if (emp.csvFile) rows.push({ key: 'Medarbejder-fil', val: emp.csvFile })
-    if (emp.contractFiles?.length)
-      rows.push({ key: 'Kontraktskabeloner', val: emp.contractFiles.join(', ') })
-    groups.push({ title: 'Medarbejdere', rows })
-  }
+  // Medarbejdere — the CSV + contracts show as downloadable file chips for this section.
+  out.employees = []
 
   const pay = (s.payroll?.answers ?? {}) as PayrollAnswers
-  {
-    const rows: Group['rows'] = []
-    if (pay.loenperiodeFra) rows.push({ key: 'Lønperiode starter', val: `den ${pay.loenperiodeFra}.` })
-    if (pay.loensystem) rows.push({ key: 'Lønsystem', val: pay.loensystem })
-    ;(pay.pauseRules ?? []).forEach((r, i) =>
-      rows.push({
-        key: i === 0 ? 'Pauseregler' : '',
-        val: `Vagt over ${pad(r.shiftH)}:${pad(r.shiftM)}:${pad(r.shiftS)} → pause ${pad(r.breakH)}:${pad(r.breakM)}:${pad(r.breakS)}`,
-      }),
-    )
-    ;(pay.wageSups ?? []).forEach((w, i) =>
-      rows.push({
-        key: i === 0 ? 'Faste løntillæg' : '',
-        val: `${w.day}${w.type === 'from_time' ? ` fra ${w.startTime}` : ' (hele dagen)'} · ${w.rate} kr.`,
-      }),
-    )
-    ;(pay.shiftTypes ?? []).forEach((st, i) =>
-      rows.push({
-        key: i === 0 ? 'Shift-typer' : '',
-        val: `${st.title} · ${st.amount} kr. ${st.bonusMode === 'per_hour' ? 'pr. time' : 'pr. vagt'}`,
-      }),
-    )
-    groups.push({ title: 'Løn & Regler', rows })
-  }
+  const payRows: Row[] = []
+  if (pay.loenperiodeFra) payRows.push({ key: 'Lønperiode starter', val: `den ${pay.loenperiodeFra}.` })
+  if (pay.loensystem)
+    payRows.push({
+      key: 'Lønsystem',
+      val:
+        pay.loensystem === 'Andet' && pay.loensystemOther
+          ? `Andet — ${pay.loensystemOther}`
+          : pay.loensystem,
+    })
+  ;(pay.pauseRules ?? []).forEach((r, i) =>
+    payRows.push({
+      key: i === 0 ? 'Pauseregler' : '',
+      val: `Vagt over ${pad(r.shiftH)}:${pad(r.shiftM)}:${pad(r.shiftS)} → pause ${pad(r.breakH)}:${pad(r.breakM)}:${pad(r.breakS)}`,
+    }),
+  )
+  ;(pay.wageSups ?? []).forEach((w, i) =>
+    payRows.push({
+      key: i === 0 ? 'Faste løntillæg' : '',
+      val: `${w.day}${w.type === 'from_time' ? ` fra ${w.startTime}` : ' (hele dagen)'} · ${w.rate} kr.`,
+    }),
+  )
+  ;(pay.shiftTypes ?? []).forEach((st, i) =>
+    payRows.push({
+      key: i === 0 ? 'Shift-typer' : '',
+      val: `${st.title} — ${st.amount} kr. ${st.bonusMode === 'per_hour' ? 'pr. time' : 'pr. vagt'}${
+        st.description ? ` · ${st.description}` : ''
+      }`,
+    }),
+  )
+  out.payroll = payRows
 
   const bud = s.budget as BudgetData | undefined
-  {
-    const rows: Group['rows'] = []
-    if (bud?.skipped) rows.push({ key: 'Status', val: 'Sprunget over' })
-    if (bud?.budgetFile) rows.push({ key: 'Budget-fil', val: bud.budgetFile })
-    if (bud?.answers?.budgetNotes) rows.push({ key: 'Kommentar', val: bud.answers.budgetNotes })
-    groups.push({ title: 'Budget', rows })
-  }
+  const budRows: Row[] = []
+  if (bud?.answers?.budgetNotes) budRows.push({ key: 'Kommentar', val: bud.answers.budgetNotes })
+  out.budget = budRows
 
   const inv = s.inventory as InventoryData | undefined
-  {
-    const rows: Group['rows'] = []
-    if (inv?.skipped) rows.push({ key: 'Status', val: 'Sprunget over' })
-    if (inv?.inventoryFile) rows.push({ key: 'Leverandørliste', val: inv.inventoryFile })
-    if (inv?.answers?.inventoryNotes) rows.push({ key: 'Noter', val: inv.answers.inventoryNotes })
-    groups.push({ title: 'Inventory', rows })
-  }
+  const invRows: Row[] = []
+  if (inv?.answers?.inventoryNotes) invRows.push({ key: 'Noter', val: inv.answers.inventoryNotes })
+  out.inventory = invRows
 
   const integ = (s.integrations as IntegrationsData | undefined)?.answers ?? {}
-  {
-    const labels: Record<string, string> = {
-      pos: 'POS-system',
-      payrollSystem: 'Lønsystem pr. afdeling',
-      delivery: 'Leveringsplatforme',
-      itContact: 'IT / teknisk kontakt',
-    }
-    const rows: Group['rows'] = Object.entries(integ)
-      .filter(([, v]) => v && String(v).trim())
-      .map(([k, v]) => ({ key: labels[k] ?? k, val: String(v) }))
-    groups.push({ title: 'Integrationer & POS', rows })
+  const labels: Record<string, string> = {
+    pos: 'POS-system',
+    delivery: 'Leveringsplatforme',
+    itContact: 'IT / teknisk kontakt',
   }
+  out.integrations = Object.entries(integ)
+    .filter(([, v]) => v && String(v).trim())
+    .map(([k, v]) => ({ key: labels[k] ?? k, val: String(v) }))
 
-  return groups
+  return out
 }
 
 function CreateModal({
