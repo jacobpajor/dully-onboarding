@@ -26,6 +26,7 @@ export type ShiftType = {
 export type PayrollAnswers = {
   loenperiodeFra?: string
   loensystem?: string
+  loensystemOther?: string
   pauseRules?: PauseRule[]
   wageSups?: WageSup[]
   shiftTypes?: ShiftType[]
@@ -70,11 +71,10 @@ export const SECTIONS: SectionConfig[] = [
   { id: 'budget', num: '3', title: 'Budget', sublabel: 'Valgfrit', optional: true, desc: 'Dagligt omsætningsbudget pr. afdeling inkl. moms. Giver Dully mulighed for at beregne lønprocent og sætte advarsler op i vagtplanen.' },
   { id: 'inventory', num: '4', title: 'Inventory', sublabel: 'Valgfrit', optional: true, desc: 'Leverandøroversigt til opsætning af ordresystem. Blokerer ikke go-live. Kan tilføjes efter opstart.' },
   {
-    id: 'integrations', num: '5', title: 'Integrationer & POS', sublabel: '4 spørgsmål', optional: false,
+    id: 'integrations', num: '5', title: 'Integrationer & POS', sublabel: '3 spørgsmål', optional: false,
     desc: 'Hvilke systemer I bruger, så vi kan sætte de rigtige integrationer op inden go-live.',
     questions: [
       { id: 'pos', label: 'POS-system', hint: 'Hvilket POS-system bruger I, og i hvilke afdelinger? (fx OnlinePOS, Qopla, andet)' },
-      { id: 'payrollSystem', label: 'Lønsystem pr. afdeling', hint: 'Bekræft lønsystem og angiv hvilke afdelinger der bruger det.' },
       { id: 'delivery', label: 'Leveringsplatforme', hint: 'Bruger I Wolt, Foodora, Uber Eats, og via hvilken integration?' },
       { id: 'itContact', label: 'IT / teknisk kontakt', hint: 'Navn og e-mail på den person vi koordinerer integrationsopsætning med.' },
     ],

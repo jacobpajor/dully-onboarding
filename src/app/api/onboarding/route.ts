@@ -3,6 +3,7 @@ import { createServiceClient } from '@/lib/supabase/service'
 import { getAdminUser } from '@/lib/auth'
 import { generateToken } from '@/lib/token'
 import { toApi } from '@/lib/onboarding'
+import { getLogoUrl } from '@/lib/logo'
 
 // POST /api/onboarding — admin, protected. Create a new onboarding (backend mints the token id).
 export async function POST(request: Request) {
@@ -47,5 +48,11 @@ export async function GET() {
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json((data ?? []).map(toApi))
+  const withLogos = await Promise.all(
+    (data ?? []).map(async (row) => ({
+      ...toApi(row),
+      logoUrl: await getLogoUrl(supabase, row.id),
+    })),
+  )
+  return NextResponse.json(withLogos)
 }

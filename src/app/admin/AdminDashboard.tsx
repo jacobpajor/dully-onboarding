@@ -1,11 +1,12 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   listOnboardings,
   createOnboarding,
   deleteOnboarding,
   listFiles,
+  uploadLogo,
   type OnboardingData,
   type AdminFile,
 } from '@/lib/api-client'
@@ -122,7 +123,7 @@ export default function AdminDashboard({ userEmail }: { userEmail: string }) {
               expanded={expanded === ob.id}
               onToggle={() => setExpanded((cur) => (cur === ob.id ? null : ob.id))}
               onCopy={() => copyLink(ob.id)}
-              onDeleted={load}
+              refresh={load}
             />
           ))
         )}
@@ -146,13 +147,13 @@ function CustomerCard({
   expanded,
   onToggle,
   onCopy,
-  onDeleted,
+  refresh,
 }: {
   ob: OnboardingData
   expanded: boolean
   onToggle: () => void
   onCopy: () => void
-  onDeleted: () => void
+  refresh: () => void
 }) {
   const sections = ob.sections || {}
   const done = SECS.filter((s) => sections[s.id]?.completed).length
@@ -177,7 +178,14 @@ function CustomerCard({
   return (
     <div className="card">
       <div className="card-main" onClick={onToggle}>
-        <div className="card-avatar">{initials}</div>
+        <div className="card-avatar">
+          {ob.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="card-avatar-img" src={ob.logoUrl} alt="" />
+          ) : (
+            initials
+          )}
+        </div>
         <div className="card-info">
           <div className="card-name">{ob.customerName}</div>
           <div className="card-meta">Oprettet: {created}</div>
@@ -237,11 +245,67 @@ function CustomerCard({
             </a>
           </div>
 
+          <LogoRow ob={ob} onUploaded={refresh} />
+
           <Submission ob={ob} />
 
-          <DeleteRow id={ob.id} onDeleted={onDeleted} />
+          <DeleteRow id={ob.id} onDeleted={refresh} />
         </div>
       )}
+    </div>
+  )
+}
+
+function LogoRow({ ob, onUploaded }: { ob: OnboardingData; onUploaded: () => void }) {
+  const ref = useRef<HTMLInputElement>(null)
+  const [busy, setBusy] = useState(false)
+
+  const handle = async (file?: File) => {
+    if (!file) return
+    setBusy(true)
+    try {
+      await uploadLogo(ob.id, file)
+      onUploaded()
+    } catch {
+      alert('Logo-upload fejlede. Prøv igen.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
+      {ob.logoUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={ob.logoUrl}
+          alt=""
+          style={{
+            width: 36,
+            height: 36,
+            objectFit: 'contain',
+            borderRadius: 8,
+            border: '1px solid var(--border)',
+            background: '#fff',
+          }}
+        />
+      )}
+      <button className="btn btn-secondary btn-sm" disabled={busy} onClick={() => ref.current?.click()}>
+        {busy ? 'Uploader...' : ob.logoUrl ? 'Skift logo' : '+ Tilføj logo'}
+      </button>
+      <span style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>
+        Vises på kundens onboarding-side
+      </span>
+      <input
+        ref={ref}
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          handle(e.target.files?.[0])
+          e.target.value = ''
+        }}
+      />
     </div>
   )
 }

@@ -17,6 +17,7 @@ export async function GET(_request: Request, { params }: Ctx) {
     .from('onboarding_files')
     .select()
     .eq('onboarding_id', id)
+    .neq('section', '_logo')
     .order('uploaded_at', { ascending: true })
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

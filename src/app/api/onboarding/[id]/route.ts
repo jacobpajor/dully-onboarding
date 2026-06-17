@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/service'
 import { getAdminUser } from '@/lib/auth'
 import { toApi } from '@/lib/onboarding'
+import { getLogoUrl } from '@/lib/logo'
 
 type Ctx = { params: Promise<{ id: string }> }
 
@@ -17,7 +18,8 @@ export async function GET(_request: Request, { params }: Ctx) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   if (!data) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  return NextResponse.json(toApi(data))
+  const logoUrl = await getLogoUrl(supabase, id)
+  return NextResponse.json({ ...toApi(data), logoUrl })
 }
 
 // PATCH /api/onboarding/{id} — anonymous (token). Save progress.

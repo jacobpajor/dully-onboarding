@@ -169,24 +169,17 @@ export default function CustomerForm({ token }: { token: string }) {
           <div className="htitle">Onboarding</div>
         </div>
         <div className="welcome-body">
-          <div className="welcome-logo-mark">d.</div>
+          {record.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="welcome-logo-img" src={record.logoUrl} alt={record.customerName} />
+          ) : (
+            <div className="welcome-logo-mark">d.</div>
+          )}
           <div className="welcome-customer">{record.customerName}</div>
           <h1 className="welcome-title">Velkommen til Dully</h1>
           <p className="welcome-desc">
-            Vi skal bruge lidt information fra jer for at opsætte Dully korrekt. Det tager typisk 15-20
-            minutter og kan gemmes undervejs.
+            Vi skal bruge lidt information fra jer for at opsætte Dully korrekt.
           </p>
-          <div className="welcome-steps">
-            {SECTIONS.map((s) => (
-              <div className="welcome-step" key={s.id}>
-                <div className="welcome-step-num">{s.num}</div>
-                <div className="welcome-step-label">
-                  {s.title}
-                  {s.optional && <span className="welcome-step-opt">valgfrit</span>}
-                </div>
-              </div>
-            ))}
-          </div>
           <button
             className="btn btn-primary"
             style={{ padding: '12px 32px', fontSize: 15 }}
@@ -319,10 +312,6 @@ function SectionView({
   const sd = sections[section.id]
   const isLast = cur === SECTIONS.length - 1
 
-  const toggleSkip = (skipped: boolean) => {
-    setSection(section.id, { ...(sd ?? {}), skipped, completed: skipped } as Sections[typeof section.id])
-  }
-
   return (
     <>
       <div className="sec-label">
@@ -365,18 +354,6 @@ function SectionView({
           data={(sd as IntegrationsData) ?? {}}
           onChange={(d) => setSection('integrations', d)}
         />
-      )}
-
-      {section.optional && (
-        <div className="skip-box">
-          <input
-            type="checkbox"
-            id="skip-cb"
-            checked={!!sd?.skipped}
-            onChange={(e) => toggleSkip(e.target.checked)}
-          />
-          <label htmlFor="skip-cb">Spring denne sektion over. Vi tager den på opstartsmødet.</label>
-        </div>
       )}
 
       <div className="actions">
@@ -450,8 +427,8 @@ function EmployeesSection({
             Download skabelonen, udfyld med jeres medarbejdere, og upload den her.
           </div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-          <button className="dl-btn" onClick={downloadCSV}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
+          <button className="btn btn-primary" onClick={downloadCSV}>
             ↓ Download CSV-skabelon
           </button>
           <span style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Udfyld og upload nedenfor</span>
@@ -674,6 +651,15 @@ function PayrollSection({
               </option>
             ))}
           </select>
+          {a.loensystem === 'Andet' && (
+            <input
+              type="text"
+              placeholder="Hvilket lønsystem bruger I?"
+              value={a.loensystemOther ?? ''}
+              onChange={(e) => setAnswers({ ...a, loensystemOther: e.target.value })}
+              style={{ marginTop: 8 }}
+            />
+          )}
         </div>
       </div>
 
@@ -972,6 +958,12 @@ function BudgetSection({
             Upload jeres omsætningsbudget. Vi sætter det op pr. afdeling i Dully.
           </div>
         </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
+          <button className="btn btn-primary" onClick={downloadBudgetTemplate}>
+            ↓ Download budget-skabelon
+          </button>
+          <span style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Udfyld og upload nedenfor</span>
+        </div>
         {data.budgetFile ? (
           <>
             <div className="file-list">
@@ -1166,5 +1158,15 @@ function downloadCSV() {
   const a = document.createElement('a')
   a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' }))
   a.download = 'dully-medarbejdere-skabelon.csv'
+  a.click()
+}
+
+function downloadBudgetTemplate() {
+  const headers = ['Afdeling', 'Måned', 'Omsætningsbudget inkl. moms (kr.)', 'Noter']
+  const example = ['[Afdeling 1]', '2026-07', '450000', 'Eksempel: slet eller overskriv']
+  const csv = [headers.join(','), example.map((v) => `"${v}"`).join(',')].join('\n')
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' }))
+  a.download = 'dully-budget-skabelon.csv'
   a.click()
 }

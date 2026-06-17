@@ -6,6 +6,7 @@ export type OnboardingData = {
   createdAt: string
   completedAt: string | null
   sections: Sections
+  logoUrl?: string | null
 }
 
 /** Customer-side API calls (same-origin Route Handlers). Token is in the URL. */
@@ -77,5 +78,13 @@ export type AdminFile = {
 export async function listFiles(id: string): Promise<AdminFile[]> {
   const r = await fetch(`/api/onboarding/${id}/files`, { cache: 'no-store' })
   if (!r.ok) throw new Error('Kunne ikke hente filer')
+  return r.json()
+}
+
+export async function uploadLogo(id: string, file: File): Promise<{ logoUrl: string | null }> {
+  const fd = new FormData()
+  fd.append('file', file)
+  const r = await fetch(`/api/onboarding/${id}/logo`, { method: 'POST', body: fd })
+  if (!r.ok) throw new Error('Kunne ikke uploade logo')
   return r.json()
 }
