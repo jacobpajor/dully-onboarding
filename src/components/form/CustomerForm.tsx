@@ -438,9 +438,14 @@ function EmployeesSection({
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
-          <button className="btn btn-primary" onClick={downloadCSV}>
-            ↓ Download CSV-skabelon
-          </button>
+          <a
+            className="btn btn-primary"
+            href="/templates/medarbejdere-skabelon.xlsx"
+            download="Dully-medarbejderliste.xlsx"
+            style={{ textDecoration: 'none' }}
+          >
+            ↓ Download medarbejder-skabelon
+          </a>
           <span style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Udfyld og upload nedenfor</span>
         </div>
         {data.csvFile ? (
@@ -969,9 +974,14 @@ function BudgetSection({
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
-          <button className="btn btn-primary" onClick={downloadBudgetTemplate}>
+          <a
+            className="btn btn-primary"
+            href="/templates/budget-skabelon.xlsx"
+            download="Dully-budgetark.xlsx"
+            style={{ textDecoration: 'none' }}
+          >
             ↓ Download budget-skabelon
-          </button>
+          </a>
           <span style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Udfyld og upload nedenfor</span>
         </div>
         {data.budgetFile ? (
@@ -1153,30 +1163,4 @@ function FilePicker({
       />
     </span>
   )
-}
-
-function downloadCSV() {
-  const headers = [
-    'Fornavn', 'Efternavn', 'E-mail', 'Afdeling', 'Stilling / rolle', 'Løntype', 'Sats', 'Sats-enhed',
-    'Timer/uge', 'Ansættelsesdato', 'Kontraktskabelon', 'Noter',
-  ]
-  const example = [
-    'Anne', 'Hansen', 'anne@eksempel.dk', '[Afdeling 1]', 'Barista', 'Timeløn', '145', 'kr./time', '25',
-    '2026-06-20', 'Timelønnet std.', 'Eksempel: slet eller overskriv',
-  ]
-  const csv = [headers.join(','), example.map((v) => `"${v}"`).join(',')].join('\n')
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' }))
-  a.download = 'dully-medarbejdere-skabelon.csv'
-  a.click()
-}
-
-function downloadBudgetTemplate() {
-  const headers = ['Afdeling', 'Måned', 'Omsætningsbudget inkl. moms (kr.)', 'Noter']
-  const example = ['[Afdeling 1]', '2026-07', '450000', 'Eksempel: slet eller overskriv']
-  const csv = [headers.join(','), example.map((v) => `"${v}"`).join(',')].join('\n')
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' }))
-  a.download = 'dully-budget-skabelon.csv'
-  a.click()
 }
