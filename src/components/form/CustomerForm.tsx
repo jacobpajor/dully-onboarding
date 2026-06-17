@@ -25,6 +25,7 @@ import {
   uploadFile,
   type OnboardingData,
 } from '@/lib/api-client'
+import { Logo } from '@/components/Logo'
 
 const pad = (n: number) => String(n || 0).padStart(2, '0')
 
@@ -174,7 +175,7 @@ export default function CustomerForm({ token }: { token: string }) {
     return (
       <div className="welcome-page">
         <div className="header">
-          <div className="logo">dully.</div>
+          <Logo />
           <div className="hdivider" />
           <div className="htitle">Onboarding</div>
         </div>
@@ -252,7 +253,7 @@ export default function CustomerForm({ token }: { token: string }) {
 function Header({ customerName }: { customerName: string }) {
   return (
     <div className="header">
-      <div className="logo">dully.</div>
+      <Logo />
       <div className="hdivider" />
       <div className="htitle">Onboarding</div>
       <div className="hcustomer">{customerName}</div>

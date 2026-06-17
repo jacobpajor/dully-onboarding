@@ -17,6 +17,7 @@ import type {
   InventoryData,
   IntegrationsData,
 } from '@/lib/onboarding-config'
+import { Logo } from '@/components/Logo'
 
 const SECS: { id: keyof Sections; label: string }[] = [
   { id: 'employees', label: 'Medarbejdere' },
@@ -108,7 +109,7 @@ export default function AdminDashboard({ userEmail }: { userEmail: string }) {
   return (
     <div className="admin-body">
       <div className="header">
-        <div className="logo">dully.</div>
+        <Logo />
         <div className="hdivider" />
         <div className="htitle">Onboarding Admin</div>
         <div className="hbadge">
