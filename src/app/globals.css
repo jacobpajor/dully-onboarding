@@ -214,8 +214,12 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 .card-avatar { width: 40px; height: 40px; border-radius: 10px; background: var(--primary); color: var(--primary-foreground); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; flex-shrink: 0; }
 .card-info { flex: 1; min-width: 0; }
 .card-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card-meta { font-size: 12px; color: var(--muted-foreground); margin-top: 2px; }
+.card-meta { font-size: 12px; color: var(--muted-foreground); margin-top: 3px; display: inline-flex; align-items: center; gap: 5px; }
+.card-meta svg { opacity: 0.65; }
 .card-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.card-chev { color: var(--muted-foreground); display: flex; align-items: center; flex-shrink: 0; opacity: 0.5; transition: transform 0.2s ease; margin-left: -6px; }
+.card-chev.open { transform: rotate(180deg); }
+.sdot { width: 6px; height: 6px; border-radius: 9999px; background: currentColor; opacity: 0.55; flex-shrink: 0; }
 
 .progress-wrap { padding: 0 24px 20px; }
 .progress-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }

@@ -28,6 +28,41 @@ const SECS: { id: keyof Sections; label: string }[] = [
 
 const pad = (n: number) => String(n || 0).padStart(2, '0')
 
+const iconProps = {
+  fill: 'none',
+  stroke: 'currentColor',
+  strokeWidth: 2,
+  strokeLinecap: 'round' as const,
+  strokeLinejoin: 'round' as const,
+  'aria-hidden': true,
+}
+
+function CalendarIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" {...iconProps}>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4M8 2v4M3 10h18" />
+    </svg>
+  )
+}
+
+function ChevronIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" {...iconProps}>
+      <path d="M6 9l6 6 6-6" />
+    </svg>
+  )
+}
+
+function CopyIcon() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" {...iconProps}>
+      <rect x="9" y="9" width="13" height="13" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  )
+}
+
 function linkFor(id: string) {
   const base =
     process.env.NEXT_PUBLIC_APP_URL ||
@@ -187,21 +222,32 @@ function CustomerCard({
         </div>
         <div className="card-info">
           <div className="card-name">{ob.customerName}</div>
-          <div className="card-meta">Oprettet: {created}</div>
+          <div className="card-meta">
+            <CalendarIcon />
+            Oprettet {created}
+          </div>
         </div>
         {isComplete ? (
           <span className="status-badge complete">✓ Færdig</span>
         ) : isNew ? (
-          <span className="status-badge new">Ikke startet</span>
+          <span className="status-badge new">
+            <span className="sdot" />
+            Ikke startet
+          </span>
         ) : (
           <span className="status-badge inprogress">
+            <span className="sdot" />
             {done}/{total} sektioner
           </span>
         )}
         <div className="card-actions" onClick={(e) => e.stopPropagation()}>
           <button className="btn btn-secondary btn-sm" onClick={onCopy}>
+            <CopyIcon />
             Kopiér link
           </button>
+        </div>
+        <div className={`card-chev${expanded ? ' open' : ''}`}>
+          <ChevronIcon />
         </div>
       </div>
 
