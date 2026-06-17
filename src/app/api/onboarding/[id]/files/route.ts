@@ -1,9 +1,41 @@
 import { NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { createServiceClient } from '@/lib/supabase/service'
+import { getAdminUser } from '@/lib/auth'
 
 type Ctx = { params: Promise<{ id: string }> }
 const BUCKET = 'onboarding-files'
+
+// GET /api/onboarding/{id}/files — admin, protected. List files with fresh signed URLs.
+export async function GET(_request: Request, { params }: Ctx) {
+  if (!(await getAdminUser())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  const { id } = await params
+  const supabase = createServiceClient()
+  const { data, error } = await supabase
+    .from('onboarding_files')
+    .select()
+    .eq('onboarding_id', id)
+    .order('uploaded_at', { ascending: true })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  const files = await Promise.all(
+    (data ?? []).map(async (f) => {
+      const { data: signed } = await supabase.storage
+        .from(BUCKET)
+        .createSignedUrl(f.storage_path, 60 * 60)
+      return {
+        id: f.id,
+        section: f.section,
+        field: f.field,
+        fileName: f.file_name,
+        url: signed?.signedUrl ?? null,
+      }
+    }),
+  )
+  return NextResponse.json(files)
+}
 
 // POST /api/onboarding/{id}/files — anonymous (token), multipart.
 // Fields: file, section (e.g. 'employees'), field (e.g. 'csvFile' | 'contractFiles').

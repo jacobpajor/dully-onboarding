@@ -42,3 +42,40 @@ export async function uploadFile(
   if (!r.ok) throw new Error('Upload failed')
   return r.json()
 }
+
+// ── Admin API calls (the logged-in session cookie carries auth) ────────
+
+export async function listOnboardings(): Promise<OnboardingData[]> {
+  const r = await fetch('/api/onboarding', { cache: 'no-store' })
+  if (!r.ok) throw new Error('Kunne ikke hente listen')
+  return r.json()
+}
+
+export async function createOnboarding(customerName: string): Promise<OnboardingData> {
+  const r = await fetch('/api/onboarding', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ customerName }),
+  })
+  if (!r.ok) throw new Error('Kunne ikke oprette onboarding')
+  return r.json()
+}
+
+export async function deleteOnboarding(id: string): Promise<void> {
+  const r = await fetch(`/api/onboarding/${id}`, { method: 'DELETE' })
+  if (!r.ok) throw new Error('Kunne ikke slette')
+}
+
+export type AdminFile = {
+  id: string
+  section: string
+  field: string
+  fileName: string
+  url: string | null
+}
+
+export async function listFiles(id: string): Promise<AdminFile[]> {
+  const r = await fetch(`/api/onboarding/${id}/files`, { cache: 'no-store' })
+  if (!r.ok) throw new Error('Kunne ikke hente filer')
+  return r.json()
+}
