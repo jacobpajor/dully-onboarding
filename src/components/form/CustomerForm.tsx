@@ -328,7 +328,6 @@ function SectionView({
         Del {section.num} af {SECTIONS.length}
       </div>
       <h1 className="sec-title">{section.title}</h1>
-      <p className="sec-desc">{section.desc}</p>
 
       {section.id === 'employees' && (
         <EmployeesSection
