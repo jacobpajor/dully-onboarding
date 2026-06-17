@@ -22,10 +22,10 @@
 body { font-family: var(--font-geist-sans), 'Geist', sans-serif; background: var(--background); color: var(--foreground); font-size: 14px; line-height: 20px; }
 
 /* Header */
-.header { background: var(--nav-bg); color: var(--nav-fg); height: 56px; padding: 0 24px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 20; }
+.header { background: var(--background); color: var(--foreground); height: 56px; padding: 0 24px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 20; }
 .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.5px; }
-.hdivider { width: 1px; height: 20px; background: rgba(255,255,255,0.2); }
-.htitle { font-size: 13px; color: rgba(255,255,255,0.6); flex: 1; }
+.hdivider { width: 1px; height: 20px; background: var(--border); }
+.htitle { font-size: 13px; color: var(--muted-foreground); flex: 1; }
 .hcustomer { font-size: 14px; font-weight: 600; }
 
 /* Progress bar */
@@ -193,11 +193,11 @@ select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmln
 /* ===================== ADMIN ===================== */
 .admin-body { background: #f9f9f8; min-height: 100vh; }
 .admin-page { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
-.hbadge { font-size: 12px; font-weight: 500; color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.1); padding: 3px 10px; border-radius: 9999px; }
+.hbadge { font-size: 12px; font-weight: 500; color: var(--muted-foreground); background: var(--muted); padding: 3px 10px; border-radius: 9999px; }
 .hspacer { flex: 1; }
-.admin-email { font-size: 12px; color: rgba(255,255,255,0.6); }
-.signout-btn { background: rgba(255,255,255,0.1); color: var(--nav-fg); border: none; padding: 5px 12px; border-radius: var(--radius-s); font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; }
-.signout-btn:hover { background: rgba(255,255,255,0.18); }
+.admin-email { font-size: 12px; color: var(--muted-foreground); }
+.signout-btn { background: var(--muted); color: var(--secondary-foreground); border: 1px solid var(--border); padding: 5px 12px; border-radius: var(--radius-s); font-size: 12px; font-weight: 500; cursor: pointer; font-family: inherit; }
+.signout-btn:hover { background: var(--hover-secondary); }
 
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; gap: 16px; }
 .page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; }
