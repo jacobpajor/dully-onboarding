@@ -1,0 +1,7 @@
+[build]
+  command = "npm run build"
+
+# The official Next.js runtime: turns Route Handlers into Netlify Functions,
+# handles SSR, image optimization, etc.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
