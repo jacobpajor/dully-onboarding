@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import {
   SECTIONS,
   DAYS,
@@ -279,20 +279,26 @@ function Sidebar({
         const active = i === cur
         const ic = done ? 'done' : skip ? 'skip' : active ? 'cur' : ''
         const ico = done ? '✓' : skip ? '/' : s.num
+        const firstOptional = s.optional && i > 0 && !SECTIONS[i - 1].optional
         return (
-          <div key={s.id} className={`sitem${active ? ' active' : ''}`} onClick={() => onGoto(i)}>
-            <div className={`step-icon ${ic}`}>{ico}</div>
-            <div className="stext">
-              <div className={`slabel${!active && !done && !skip ? ' dim' : ''}`}>{s.title}</div>
-              {done ? (
-                <div className="ssub green">Udfyldt</div>
-              ) : skip ? (
-                <div className="ssub">Springes over</div>
-              ) : s.optional ? (
-                <div className="ssub">Valgfrit</div>
-              ) : null}
+          <Fragment key={s.id}>
+            {firstOptional && (
+              <div className="sidebar-divider">
+                <span>Valgfrit</span>
+              </div>
+            )}
+            <div className={`sitem${active ? ' active' : ''}`} onClick={() => onGoto(i)}>
+              <div className={`step-icon ${ic}`}>{ico}</div>
+              <div className="stext">
+                <div className={`slabel${!active && !done && !skip ? ' dim' : ''}`}>{s.title}</div>
+                {done ? (
+                  <div className="ssub green">Udfyldt</div>
+                ) : skip ? (
+                  <div className="ssub">Springes over</div>
+                ) : null}
+              </div>
             </div>
-          </div>
+          </Fragment>
         )
       })}
     </aside>
@@ -735,7 +741,9 @@ function PauseForm({ onAdd, onCancel }: { onAdd: (r: PauseRule) => void; onCance
         className="time-num"
         type="number"
         min={0}
-        value={v[k]}
+        placeholder="0"
+        value={v[k] || ''}
+        onFocus={(e) => e.target.select()}
         onChange={(e) => setV({ ...v, [k]: Number(e.target.value) || 0 })}
       />
       <div className="time-lbl">{k.endsWith('H') ? 'Timer' : k.endsWith('M') ? 'Min' : 'Sek'}</div>
@@ -790,6 +798,7 @@ function WageForm({ onAdd, onCancel }: { onAdd: (w: WageSup) => void; onCancel: 
   const [day, setDay] = useState('')
   const [startTime, setStartTime] = useState('')
   const [rate, setRate] = useState(0)
+  const [err, setErr] = useState('')
   return (
     <div className="add-form">
       <div className="add-form-title">Nyt løntillæg</div>
@@ -842,11 +851,18 @@ function WageForm({ onAdd, onCancel }: { onAdd: (w: WageSup) => void; onCancel: 
         <input
           type="number"
           min={0}
-          value={rate}
+          placeholder="0"
+          value={rate || ''}
+          onFocus={(e) => e.target.select()}
           onChange={(e) => setRate(Number(e.target.value) || 0)}
           style={{ width: 160 }}
         />
       </div>
+      {err && (
+        <div className="login-error" style={{ marginTop: 12 }}>
+          {err}
+        </div>
+      )}
       <div className="add-form-actions">
         <button className="btn btn-secondary btn-sm" onClick={onCancel}>
           Annuller
@@ -854,7 +870,14 @@ function WageForm({ onAdd, onCancel }: { onAdd: (w: WageSup) => void; onCancel: 
         <button
           className="btn btn-primary btn-sm"
           onClick={() => {
-            if (!day) return
+            if (!day) {
+              setErr('Vælg en ugedag.')
+              return
+            }
+            if (type === 'from_time' && !startTime) {
+              setErr('Angiv et fuldt tidspunkt (tt:mm).')
+              return
+            }
             onAdd({ type, day, startTime: type === 'from_time' ? startTime : '', rate })
           }}
         >
@@ -897,7 +920,9 @@ function ShiftForm({ onAdd, onCancel }: { onAdd: (s: ShiftType) => void; onCance
         <input
           type="number"
           min={0}
-          value={amount}
+          placeholder="0"
+          value={amount || ''}
+          onFocus={(e) => e.target.select()}
           onChange={(e) => setAmount(Number(e.target.value) || 0)}
           style={{ width: 160 }}
         />

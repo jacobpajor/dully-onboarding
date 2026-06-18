@@ -22,9 +22,9 @@ import { Logo } from '@/components/Logo'
 const SECS: { id: keyof Sections; label: string }[] = [
   { id: 'employees', label: 'Medarbejdere' },
   { id: 'payroll', label: 'Løn & Regler' },
+  { id: 'integrations', label: 'Integrationer & POS' },
   { id: 'budget', label: 'Budget' },
   { id: 'inventory', label: 'Inventory' },
-  { id: 'integrations', label: 'Integrationer & POS' },
 ]
 
 const pad = (n: number) => String(n || 0).padStart(2, '0')
@@ -396,9 +396,9 @@ function DeleteRow({ id, onDeleted }: { id: string; onDeleted: () => void }) {
 const SUBM_SECTIONS: { key: string; title: string }[] = [
   { key: 'employees', title: 'Medarbejdere' },
   { key: 'payroll', title: 'Løn & Regler' },
+  { key: 'integrations', title: 'Integrationer & POS' },
   { key: 'budget', title: 'Budget' },
   { key: 'inventory', title: 'Inventory' },
-  { key: 'integrations', title: 'Integrationer & POS' },
 ]
 
 function FileChip({ f }: { f: AdminFile }) {

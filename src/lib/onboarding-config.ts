@@ -68,10 +68,8 @@ export type SectionConfig = {
 export const SECTIONS: SectionConfig[] = [
   { id: 'employees', num: '1', title: 'Medarbejdere', sublabel: 'CSV + kontrakter', optional: false, desc: 'Jeres team. Kan typisk eksporteres fra jeres nuværende system. Ellers udfyld skabelonen nedenfor.' },
   { id: 'payroll', num: '2', title: 'Løn & Regler', sublabel: '5 emner', optional: false, desc: 'De regler der styrer, hvordan timer og løn beregnes korrekt fra dag 1.' },
-  { id: 'budget', num: '3', title: 'Budget', sublabel: 'Valgfrit', optional: true, desc: 'Dagligt omsætningsbudget pr. afdeling inkl. moms. Giver Dully mulighed for at beregne lønprocent og sætte advarsler op i vagtplanen.' },
-  { id: 'inventory', num: '4', title: 'Inventory', sublabel: 'Valgfrit', optional: true, desc: 'Leverandøroversigt til opsætning af ordresystem. Blokerer ikke go-live. Kan tilføjes efter opstart.' },
   {
-    id: 'integrations', num: '5', title: 'Integrationer & POS', sublabel: '3 spørgsmål', optional: false,
+    id: 'integrations', num: '3', title: 'Integrationer & POS', sublabel: '3 spørgsmål', optional: false,
     desc: 'Hvilke systemer I bruger, så vi kan sætte de rigtige integrationer op inden go-live.',
     questions: [
       { id: 'pos', label: 'POS-system', hint: 'Hvilket POS-system bruger I, og i hvilke afdelinger? (fx OnlinePOS, Qopla, andet)' },
@@ -79,6 +77,8 @@ export const SECTIONS: SectionConfig[] = [
       { id: 'itContact', label: 'IT / teknisk kontakt', hint: 'Navn og e-mail på den person vi koordinerer integrationsopsætning med.' },
     ],
   },
+  { id: 'budget', num: '4', title: 'Budget', sublabel: 'Valgfrit', optional: true, desc: 'Dagligt omsætningsbudget pr. afdeling inkl. moms. Giver Dully mulighed for at beregne lønprocent og sætte advarsler op i vagtplanen.' },
+  { id: 'inventory', num: '5', title: 'Inventory', sublabel: 'Valgfrit', optional: true, desc: 'Leverandøroversigt til opsætning af ordresystem. Blokerer ikke go-live. Kan tilføjes efter opstart.' },
 ]
 
 export const DAYS = ['Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag', 'Søndag']
