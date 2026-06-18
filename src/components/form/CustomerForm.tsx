@@ -995,7 +995,8 @@ function BudgetSection({
         <div className="qgroup-head">
           <div className="qgroup-title">Budget-fil</div>
           <div className="qgroup-hint">
-            Upload jeres omsætningsbudget. Vi sætter det op pr. afdeling i Dully.
+            Upload jeres omsætningsbudget. Vi sætter det op pr. afdeling i Dully.{' '}
+            <strong>Budgettet skal være inkl. moms.</strong>
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
