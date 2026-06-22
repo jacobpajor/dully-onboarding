@@ -519,6 +519,7 @@ function buildGroups(s: Sections): Record<string, Row[]> {
 
   const inv = s.inventory as InventoryData | undefined
   const invRows: Row[] = []
+  if (inv?.answers?.suppliers) invRows.push({ key: 'Leverandører', val: inv.answers.suppliers })
   if (inv?.answers?.inventoryNotes) invRows.push({ key: 'Noter', val: inv.answers.inventoryNotes })
   out.inventory = invRows
 

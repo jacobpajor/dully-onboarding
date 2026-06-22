@@ -38,8 +38,7 @@ export type BudgetData = SectionMeta & {
   answers?: { budgetNotes?: string }
 }
 export type InventoryData = SectionMeta & {
-  inventoryFile?: string | null
-  answers?: { inventoryNotes?: string }
+  answers?: { suppliers?: string; inventoryNotes?: string }
 }
 export type IntegrationsData = SectionMeta & {
   answers?: Record<string, string>

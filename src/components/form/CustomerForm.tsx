@@ -360,7 +360,6 @@ function SectionView({
       {section.id === 'inventory' && (
         <InventorySection
           data={(sd as InventoryData) ?? {}}
-          upload={upload}
           onChange={(d) => setSection('inventory', d)}
         />
       )}
@@ -1056,62 +1055,27 @@ function BudgetSection({
 // ── INVENTORY ──────────────────────────────────────────────────────────
 function InventorySection({
   data,
-  upload,
   onChange,
 }: {
   data: InventoryData
-  upload: (section: string, field: string, file: File) => Promise<string>
   onChange: (d: InventoryData) => void
 }) {
-  const [busy, setBusy] = useState(false)
-  const handle = async (file: File | undefined) => {
-    if (!file) return
-    setBusy(true)
-    try {
-      const name = await upload('inventory', 'inventoryFile', file)
-      onChange({ ...data, inventoryFile: name })
-    } catch {
-      alert('Upload fejlede. Prøv igen.')
-    } finally {
-      setBusy(false)
-    }
-  }
+  const answers = data.answers ?? {}
   return (
     <>
       <div className="qgroup">
         <div className="qgroup-head">
           <div className="qgroup-title">Leverandørliste</div>
           <div className="qgroup-hint">
-            Upload en oversigt over jeres leverandører. Vi importerer dem ind i Dully.
+            Skriv hvilke leverandører I bruger — gerne én pr. linje.
           </div>
         </div>
-        {data.inventoryFile ? (
-          <>
-            <div className="file-list">
-              <div className="file-item">
-                <div className="file-icon">🗂️</div>
-                <div className="file-name">{data.inventoryFile}</div>
-                <button className="file-remove" onClick={() => onChange({ ...data, inventoryFile: null })}>
-                  ×
-                </button>
-              </div>
-            </div>
-            <FilePicker accept=".xlsx,.csv,.xls" disabled={busy} onPick={handle}>
-              <span className="upload-add-btn">↑ Udskift fil</span>
-            </FilePicker>
-          </>
-        ) : (
-          <FilePicker accept=".xlsx,.csv,.xls" disabled={busy} onPick={handle}>
-            <div className="upload-area">
-              <div className="upload-icon">🗂️</div>
-              <div className="upload-text">
-                <strong>{busy ? 'Uploader...' : 'Klik for at uploade'}</strong>
-                {!busy && ' leverandørliste'}
-              </div>
-              <div className="upload-sub">.xlsx eller .csv</div>
-            </div>
-          </FilePicker>
-        )}
+        <textarea
+          placeholder={'Fx:\nGrønthandler ApS\nKød & Co.\nDrikkevarer A/S'}
+          style={{ minHeight: 120 }}
+          defaultValue={answers.suppliers ?? ''}
+          onBlur={(e) => onChange({ ...data, answers: { ...answers, suppliers: e.target.value } })}
+        />
       </div>
       <div className="qgroup">
         <div className="qgroup-head">
@@ -1120,8 +1084,8 @@ function InventorySection({
         </div>
         <textarea
           placeholder="Fx: Leverandør X leverer kun mandag og torsdag..."
-          defaultValue={data.answers?.inventoryNotes ?? ''}
-          onBlur={(e) => onChange({ ...data, answers: { inventoryNotes: e.target.value } })}
+          defaultValue={answers.inventoryNotes ?? ''}
+          onBlur={(e) => onChange({ ...data, answers: { ...answers, inventoryNotes: e.target.value } })}
         />
       </div>
     </>
